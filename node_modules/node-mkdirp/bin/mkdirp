@@ -1,0 +1,21 @@
+#!/usr/bin/env node
+
+var walk = require('..');
+var pkg = require('../package.json');
+
+var argv = require('yargs')
+  .version(pkg.version)
+  .usage('Usage: $0 [dirs]')
+  .option('m', {
+    alias: 'mode',
+    demand: false,
+    type: 'string'
+  })
+  .demand(1)
+  .example('$0 a/b/c')
+  .epilog('https://github.com/boiawang/mkdirp')
+  .argv;
+
+var dirPaths = argv._[0];
+
+walk(dirPaths, argv.m);
