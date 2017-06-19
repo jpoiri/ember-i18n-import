@@ -11,7 +11,7 @@ const BINARY_ENCODING = 'binary';
 const UTF_8_ENCODING = 'utf-8';
 const CHARACTER_SPACING = 4;
 const DEFAULT_TRANSLATION_KEY_COLUMN = 'SYSTEM_KEY';
-const DEFAULT_OUTPUT_DIR = 'app/locale';
+const DEFAULT_OUTPUT_DIR = 'app/locales';
 const DEFAULT_OUTPUT_FILE = 'translations.js';
 
 let translationsMap = {};
@@ -22,7 +22,7 @@ let outputFile = DEFAULT_OUTPUT_FILE;
 
 program
 	.version('1.0.0')
-	.option('--inputFile [inputFile]')
+	.option('--inputFile [inputFile]', 'The csv file containing the translations.')
 	.option('--outputDir [outputDir]','The output directory to create the locale translation files. Defaults to app/locales')
 	.option('--outputFile [ouptutFile]', 'The output file generate for each locale. Defaults to translations.js')
 	.option('--translationKeyColumnName [translationKeyColumnName]',

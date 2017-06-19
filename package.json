@@ -1,33 +1,36 @@
 {
-  "name": "ember-i18n-import",
-  "version": "1.0.0",
-  "description": "Import ember-i18n translations from a consolidated csv file",
-  "main": "ember-i18n-import",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jpoiri/ember-i18n-import.git"
-  },
-  "keywords": [
-    "ember-addon",
-    "csv",
-    "ember-i18n"
-  ],
-  "author": "Justin Poirier",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/jpoiri/ember-i18n-import/issues"
-  },
-  "homepage": "https://github.com/jpoiri/ember-i18n-import#readme",
-  "devDependencies": {
-    "array-contains": "0.0.1",
-    "chalk": "^1.1.3",
-    "commander": "^2.9.0",
-    "csv-parser": "^1.11.0",
-    "flat": "^2.0.1",
-    "jsonfile": "^3.0.0",
-    "mkdirp": "^0.5.1"
-  }
+	"name": "ember-i18n-import",
+	"version": "1.0.0",
+	"description": "Import ember-i18n translations from a consolidated csv file",
+	"main": "ember-i18n-import",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"bin": {
+		"ember-i18n-import": "ember-i18n-import.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/jpoiri/ember-i18n-import.git"
+	},
+	"keywords": [
+		"ember-addon",
+		"csv",
+		"ember-i18n"
+	],
+	"author": "Justin Poirier",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/jpoiri/ember-i18n-import/issues"
+	},
+	"homepage": "https://github.com/jpoiri/ember-i18n-import#readme",
+	"devDependencies": {
+		"array-contains": "0.0.1",
+		"chalk": "^1.1.3",
+		"commander": "^2.9.0",
+		"csv-parser": "^1.11.0",
+		"flat": "^2.0.1",
+		"jsonfile": "^3.0.0",
+		"mkdirp": "^0.5.1"
+	}
 }
