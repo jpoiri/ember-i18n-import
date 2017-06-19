@@ -169,14 +169,14 @@ function generateTranslationFiles(translationsMap, outputDir, outputFile) {
 				fs.unlinkSync(localeFilePath);
 			}
 
-			fs.writeFileSync(localeFilePath, '/* eslint quotes: 0 */ \n', UTF_8_ENCODING);
-			fs.appendFileSync(localeFilePath, '/* eslint max-len: 0 */ \n', UTF_8_ENCODING);
-			fs.appendFileSync(localeFilePath, '/* eslint quote-props: 0 */ \n', UTF_8_ENCODING);
+			fs.writeFileSync(localeFilePath, '/* eslint quotes: 0 */\n', UTF_8_ENCODING);
+			fs.appendFileSync(localeFilePath, '/* eslint max-len: 0 */\n', UTF_8_ENCODING);
+			fs.appendFileSync(localeFilePath, '/* eslint quote-props: 0 */\n', UTF_8_ENCODING);
 			fs.appendFileSync(localeFilePath, '', UTF_8_ENCODING);
 
 			fs.appendFileSync(localeFilePath,
-				'export default ' + JSON.stringify(
-					unflatten(translationsMap[locale]), null, CHARACTER_SPACING), UTF_8_ENCODING);
+				`export default ${JSON.stringify(
+					unflatten(translationsMap[locale]), null, CHARACTER_SPACING)};`, UTF_8_ENCODING);
 		}
 	}
 }
