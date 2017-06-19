@@ -23,7 +23,7 @@ let outputFile = DEFAULT_OUTPUT_FILE;
 program
 	.version('1.0.0')
 	.option('--inputFile [inputFile]', 'The csv file containing the translations.')
-	.option('--outputDir [outputDir]','The output directory to create the locale translation files. Defaults to app/locales')
+	.option('--outputDir [outputDir]', 'The output directory to create the locale translation files. Defaults to app/locales')
 	.option('--outputFile [ouptutFile]', 'The output file generate for each locale. Defaults to translations.js')
 	.option('--translationKeyColumnName [translationKeyColumnName]',
 		'The column name for the translation key. Defaults to SYSTEM_KEY')
@@ -54,12 +54,12 @@ if (program.localeColumnNames) {
 importTranslations(program.inputFile, outputDir, outputFile, translationKeyColumnName, localeColumnNames);
 
 /**
-* Import translations
-* @param inputFile The input file
-* @param outputDir The output directory
-* @param outputFile The output file
-* @param translationKeyColumnName the translation key column name
-*/
+ * Import translations
+ * @param inputFile The input file
+ * @param outputDir The output directory
+ * @param outputFile The output file
+ * @param translationKeyColumnName the translation key column name
+ */
 function importTranslations(inputFile, outputDir, outputFile, translationKeyColumnName, localeColumnNames) {
 
 	console.log(chalk.blue('Importing translations using the following options:'));
@@ -89,17 +89,17 @@ function importTranslations(inputFile, outputDir, outputFile, translationKeyColu
 				throw new Error(chalk.red('There is no translation key column defined.'));
 			}
 		})
-		.on('data',  (data) => {
+		.on('data', (data) => {
 			for (let locale in translationsMap) {
 				if (translationsMap.hasOwnProperty(locale)) {
 					if (data[translationKeyColumnName]) {
 						translationsMap[locale][data[translationKeyColumnName]] =
-						data[getColumnNameFromLocale(locale, localeColumnNames)]
+							data[getColumnNameFromLocale(locale, localeColumnNames)]
 					}
 				}
 			}
 		})
-		.on('end',  () => {
+		.on('end', () => {
 			generateTranslationFiles(translationsMap, outputDir, outputFile);
 			console.log();
 			console.log(chalk.green('Successfully imported translations.'));
@@ -108,17 +108,17 @@ function importTranslations(inputFile, outputDir, outputFile, translationKeyColu
 }
 
 /**
-* Returns the locale from the column name.
-* @param columnName The column name.
-* @param localeColumnNames The map of locale column names mapping.
-*/
+ * Returns the locale from the column name.
+ * @param columnName The column name.
+ * @param localeColumnNames The map of locale column names mapping.
+ */
 function getLocaleFromColumnName(columnName, localeColumnNames) {
 	if (localeColumnNames) {
 		for (let locale in localeColumnNames) {
-        	if (localeColumnNames.hasOwnProperty(locale) && columnName === localeColumnNames[locale]) {
-        		return locale;
-        	}
-        }
+			if (localeColumnNames.hasOwnProperty(locale) && columnName === localeColumnNames[locale]) {
+				return locale;
+			}
+		}
 	}
 	return columnName.toLowerCase();
 }
@@ -138,11 +138,11 @@ function getColumnNameFromLocale(locale, localeColumnNames) {
 }
 
 /**
-* Generate translation files from translation map.
-* @param translationsMap The translation map.
-* @param outputDir The output directory.
-* @param outputFile The output file.
-*/
+ * Generate translation files from translation map.
+ * @param translationsMap The translation map.
+ * @param outputDir The output directory.
+ * @param outputFile The output file.
+ */
 function generateTranslationFiles(translationsMap, outputDir, outputFile) {
 
 	// check if output directory exists, if not create it.
@@ -156,22 +156,27 @@ function generateTranslationFiles(translationsMap, outputDir, outputFile) {
 
 			const localeDirectoryPath = `${outputDir}/${locale}`;
 
-				// check if output directory exists, if not create it.
-				if (!fs.existsSync(localeDirectoryPath)) {
-					fs.mkdirSync(localeDirectoryPath);
-				}
+			// check if output directory exists, if not create it.
+			if (!fs.existsSync(localeDirectoryPath)) {
+				fs.mkdirSync(localeDirectoryPath);
+			}
 
-				const localeFilePath = `${outputDir}/${locale}/${outputFile}`;
+			const localeFilePath = `${outputDir}/${locale}/${outputFile}`;
 
-				console.log(`Generating translations file: ${outputDir}/${locale}/${outputFile}`);
+			console.log(`Generating translations file: ${outputDir}/${locale}/${outputFile}`);
 
-				if (fs.existsSync(localeFilePath)) {
-					fs.unlinkSync(localeFilePath);
-				}
+			if (fs.existsSync(localeFilePath)) {
+				fs.unlinkSync(localeFilePath);
+			}
 
-				fs.writeFileSync(localeFilePath,
-					'export default ' + JSON.stringify(
-						unflatten(translationsMap[locale]), null, CHARACTER_SPACING), UTF_8_ENCODING);
+			fs.writeFileSync(localeFilePath, '/* eslint quotes: 0 */ \n', UTF_8_ENCODING);
+			fs.appendFileSync(localeFilePath, '/* eslint max-len: 0 */ \n', UTF_8_ENCODING);
+			fs.appendFileSync(localeFilePath, '/* eslint quote-props: 0 */ \n', UTF_8_ENCODING);
+			fs.appendFileSync(localeFilePath, '', UTF_8_ENCODING);
+
+			fs.appendFileSync(localeFilePath,
+				'export default ' + JSON.stringify(
+					unflatten(translationsMap[locale]), null, CHARACTER_SPACING), UTF_8_ENCODING);
 		}
 	}
 }
