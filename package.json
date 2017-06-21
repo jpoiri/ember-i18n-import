@@ -1,6 +1,6 @@
 {
   "name": "ember-i18n-import",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Import ember-i18n translations from a consolidated csv file",
   "main": "ember-i18n-import.js",
   "scripts": {
