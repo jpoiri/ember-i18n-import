@@ -1,3 +1,6 @@
+/* eslint quotes: 0 */
+/* eslint max-len: 0 */
+/* eslint quote-props: 0 */
 export default {
     "component_1": {
         "label": {
@@ -9,4 +12,4 @@ export default {
             "Field 2": "Field 2 error"
         }
     }
-}
+};

@@ -3,6 +3,7 @@
 let program = require('commander');
 let fs = require('fs');
 let unflatten = require('flat').unflatten;
+let flatten = require('flat');
 let chalk = require('chalk');
 let csvParser = require('csv-parser');
 let mkdirp = require('node-mkdirp');
@@ -11,10 +12,9 @@ const BINARY_ENCODING = 'binary';
 const UTF_8_ENCODING = 'utf-8';
 const CHARACTER_SPACING = 4;
 const DEFAULT_TRANSLATION_KEY_COLUMN = 'SYSTEM_KEY';
-const DEFAULT_OUTPUT_DIR = 'app/locales';
+const DEFAULT_OUTPUT_DIR = 'app/locales/';
 const DEFAULT_OUTPUT_FILE = 'translations.js';
 
-let translationsMap = {};
 let translationKeyColumnName = DEFAULT_TRANSLATION_KEY_COLUMN;
 let localeColumnNames = {};
 let outputDir = DEFAULT_OUTPUT_DIR;
@@ -71,6 +71,9 @@ function importTranslations(inputFile, outputDir, outputFile, translationKeyColu
 	console.log(chalk.blue(`localeColumnNames: ${JSON.stringify(localeColumnNames)}`));
 	console.log();
 
+	// get the existing translation map.
+	let translationsMap = getTranslationMap(outputDir, outputFile);
+
 	console.log(`Importing translations from: ${inputFile}`);
 
 	fs.createReadStream(inputFile, {
@@ -80,7 +83,10 @@ function importTranslations(inputFile, outputDir, outputFile, translationKeyColu
 			let hasTranslationKey = false;
 			for (let i = 0, len = headers.length; i < len; i++) {
 				if (headers[i] !== translationKeyColumnName) {
-					translationsMap[getLocaleFromColumnName(headers[i], localeColumnNames)] = {};
+					// if locale map not created it.
+					if (!translationsMap[getLocaleFromColumnName(headers[i], localeColumnNames)]) {
+						translationsMap[getLocaleFromColumnName(headers[i], localeColumnNames)] = {};
+					}
 				} else {
 					hasTranslationKey = true;
 				}
@@ -181,5 +187,83 @@ function generateTranslationFiles(translationsMap, outputDir, outputFile) {
 	}
 }
 
+/**
+ * Reads all transitions files returns a nested JSON object where the
+ * first level key is the locale and second level key is the translation key ex:
+ * {
+ * 	"en": {
+ * 		"component1.label.field1": "value"
+ * 	},
+ * 	"fr": {
+ * 		"component1.label.field1": "value [fr]"
+ * 	}
+ * }
+ * @param inputDir The input directory
+ * @param inputFile The input file.
+ * @returns {Object}
+ */
+function getTranslationMap(inputDir, inputFile) {
+	let locales = getLocales(inputDir);
+	let translationsMap = {};
+	// loop through each locale and retrieve the translations file.
 
+	locales.forEach(function (locale) {
+		let translationFilePath = `${inputDir}${locale}/${inputFile}`;
 
+		console.log(`Getting existing translations from: ${translationFilePath}`);
+
+		// if there no transition file but a locale leave  it blank.
+		if (fs.existsSync(translationFilePath)) {
+			let data = fs.readFileSync(translationFilePath, UTF_8_ENCODING);
+			translationsMap[locale] = getFlattenTranslations(data);
+		} else {
+			translationsMap[locale] = {};
+		}
+	});
+	return translationsMap;
+}
+
+/**
+ * Returns the flat version of the translations from the translation data.
+ * @param translationData The translations
+ * @returns {object}
+ */
+function getFlattenTranslations(translationData) {
+	// flatten JSON object.
+	let flattenTranslations = flatten(getTranslations(translationData));
+	if (!flattenTranslations) {
+		throw new Error('Unable to flatten the translations.');
+	}
+	return flattenTranslations;
+}
+
+/**
+ * Returns the translations from the translations data
+ * @param translationsData The translations data.
+ */
+function getTranslations(translationsData) {
+	// find where the translations JSON starts.
+	let translationsStartIndex = translationsData.indexOf('{');
+	// find where the translations JSON ends.
+	let translationsEndIndex = translationsData.lastIndexOf('}');
+	if (translationsStartIndex < 0 || translationsEndIndex < 0) {
+		throw new Error('Unable to parse the translations.');
+	}
+	// Parse JSON string
+	let translations = JSON.parse(translationsData.substring(translationsStartIndex, translationsEndIndex + 1));
+	if (!translations) {
+		throw new Error('Unable to parse the translations.');
+	}
+	return translations;
+}
+
+/**
+ * Returns the list of locales based on the ember-i18n file directory.
+ * @returns {Array}
+ */
+function getLocales(inputDir) {
+	// loop throught the list of subdirectories in app/locales
+	return fs.readdirSync(inputDir).filter(function (file) {
+		return fs.statSync(inputDir + file).isDirectory();
+	});
+}
