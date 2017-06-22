@@ -30,6 +30,7 @@
     "csv-parser": "^1.11.0",
     "flat": "^2.0.1",
     "jsonfile": "^3.0.0",
-    "mkdirp": "^0.5.1"
+    "mkdirp": "^0.5.1",
+    "pretty-json-stringify": "0.0.2"
   }
 }

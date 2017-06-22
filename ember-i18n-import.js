@@ -7,6 +7,7 @@ let flatten = require('flat');
 let chalk = require('chalk');
 let csvParser = require('csv-parser');
 let mkdirp = require('node-mkdirp');
+let prettyJSON = require('pretty-json-stringify');
 
 const BINARY_ENCODING = 'binary';
 const UTF_8_ENCODING = 'utf-8';
@@ -180,9 +181,15 @@ function generateTranslationFiles(translationsMap, outputDir, outputFile) {
 			fs.appendFileSync(localeFilePath, '/* eslint quote-props: 0 */\n', UTF_8_ENCODING);
 			fs.appendFileSync(localeFilePath, '', UTF_8_ENCODING);
 
+			let unflattenJSON = unflatten(translationsMap[locale]);
+
 			fs.appendFileSync(localeFilePath,
-				`export default ${JSON.stringify(
-					unflatten(translationsMap[locale]), null, CHARACTER_SPACING)};`, UTF_8_ENCODING);
+				`export default ${prettyJSON(unflattenJSON, {
+					spaceBeforeColon: '',
+					shouldExpand: () => {
+						return true;
+					}
+				})};`, UTF_8_ENCODING);
 		}
 	}
 }
