@@ -49,5 +49,9 @@ By default each locale values is taken from the matching capitalize locale colum
 ```code
 ember-i18n-import --inputFile translations.csv --localeColumnNames {\"en\":\"English\",\"fr\":\"French\"}
 ```
+### excludedLocales
 
-
+By default all locales are imported, you can override this by passing comma delimited string of locales to exclude.
+```code
+ember-i18n-import --inputFile translations.csv --excludedLocales en,fr
+```
