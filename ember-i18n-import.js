@@ -18,6 +18,7 @@ const DEFAULT_OUTPUT_FILE = 'translations.js';
 
 let translationKeyColumnName = DEFAULT_TRANSLATION_KEY_COLUMN;
 let localeColumnNames = {};
+let excludedLocales = [];
 let outputDir = DEFAULT_OUTPUT_DIR;
 let outputFile = DEFAULT_OUTPUT_FILE;
 
@@ -30,6 +31,7 @@ program
 		'The column name for the translation key. Defaults to SYSTEM_KEY')
 	.option('--localeColumnNames [localeColumnNames]', 'The column names for each locales. Use the locale name as the key. ' +
 		'Defaults to {\\\"en\\\:\\\"EN\\\",\\\"fr\\\": \\\"FR\\\"}')
+	.option('--excludedLocales [excludedLocales]', 'Comma separated string of excluded locales')
 	.parse(process.argv);
 
 if (!program.inputFile) {
@@ -52,7 +54,11 @@ if (program.localeColumnNames) {
 	localeColumnNames = JSON.parse(program.localeColumnNames);
 }
 
-importTranslations(program.inputFile, outputDir, outputFile, translationKeyColumnName, localeColumnNames);
+if (program.excludedLocales) {
+	excludedLocales = program.excludedLocales.split(',');
+}
+
+importTranslations(program.inputFile, outputDir, outputFile, translationKeyColumnName, localeColumnNames, excludedLocales);
 
 /**
  * Import translations
@@ -60,8 +66,10 @@ importTranslations(program.inputFile, outputDir, outputFile, translationKeyColum
  * @param outputDir The output directory
  * @param outputFile The output file
  * @param translationKeyColumnName the translation key column name
+ * @param localeColumnNames The column names for the locales
+ * @param excludedLocales The locales excluded from importing.
  */
-function importTranslations(inputFile, outputDir, outputFile, translationKeyColumnName, localeColumnNames) {
+function importTranslations(inputFile, outputDir, outputFile, translationKeyColumnName, localeColumnNames, excludedLocales) {
 
 	console.log(chalk.blue('Importing translations using the following options:'));
 	console.log();
@@ -107,7 +115,7 @@ function importTranslations(inputFile, outputDir, outputFile, translationKeyColu
 			}
 		})
 		.on('end', () => {
-			generateTranslationFiles(translationsMap, outputDir, outputFile);
+			generateTranslationFiles(translationsMap, outputDir, outputFile, excludedLocales);
 			console.log();
 			console.log(chalk.green('Successfully imported translations.'));
 		});
@@ -150,7 +158,7 @@ function getColumnNameFromLocale(locale, localeColumnNames) {
  * @param outputDir The output directory.
  * @param outputFile The output file.
  */
-function generateTranslationFiles(translationsMap, outputDir, outputFile) {
+function generateTranslationFiles(translationsMap, outputDir, outputFile, excludedLocales) {
 
 	// check if output directory exists, if not create it.
 	if (!fs.existsSync(outputDir)) {
@@ -160,36 +168,42 @@ function generateTranslationFiles(translationsMap, outputDir, outputFile) {
 	// loop each locale in translation map
 	for (let locale in translationsMap) {
 		if (translationsMap.hasOwnProperty(locale)) {
+			if (excludedLocales.indexOf(locale) < 0) {
 
-			const localeDirectoryPath = `${outputDir}/${locale}`;
+				const localeDirectoryPath = `${outputDir}/${locale}`;
 
-			// check if output directory exists, if not create it.
-			if (!fs.existsSync(localeDirectoryPath)) {
-				fs.mkdirSync(localeDirectoryPath);
+				// check if output directory exists, if not create it.
+				if (!fs.existsSync(localeDirectoryPath)) {
+					fs.mkdirSync(localeDirectoryPath);
+				}
+
+				const localeFilePath = `${outputDir}/${locale}/${outputFile}`;
+
+				console.log(`Generating translations file: ${outputDir}${locale}/${outputFile}`);
+
+				if (fs.existsSync(localeFilePath)) {
+					fs.unlinkSync(localeFilePath);
+				}
+
+				fs.writeFileSync(localeFilePath, '/* eslint quotes: 0 */\n', UTF_8_ENCODING);
+				fs.appendFileSync(localeFilePath, '/* eslint max-len: 0 */\n', UTF_8_ENCODING);
+				fs.appendFileSync(localeFilePath, '/* eslint quote-props: 0 */\n', UTF_8_ENCODING);
+				fs.appendFileSync(localeFilePath, '', UTF_8_ENCODING);
+
+				let unflattenJSON = unflatten(translationsMap[locale]);
+
+				fs.appendFileSync(localeFilePath,
+					`export default ${prettyJSON(unflattenJSON, {
+						spaceBeforeColon: '',
+						shouldExpand: () => {
+							return true;
+						}
+					})};`, UTF_8_ENCODING);
+
+
+			} else {
+				console.log(`Excluding locale: ${locale}`);
 			}
-
-			const localeFilePath = `${outputDir}/${locale}/${outputFile}`;
-
-			console.log(`Generating translations file: ${outputDir}/${locale}/${outputFile}`);
-
-			if (fs.existsSync(localeFilePath)) {
-				fs.unlinkSync(localeFilePath);
-			}
-
-			fs.writeFileSync(localeFilePath, '/* eslint quotes: 0 */\n', UTF_8_ENCODING);
-			fs.appendFileSync(localeFilePath, '/* eslint max-len: 0 */\n', UTF_8_ENCODING);
-			fs.appendFileSync(localeFilePath, '/* eslint quote-props: 0 */\n', UTF_8_ENCODING);
-			fs.appendFileSync(localeFilePath, '', UTF_8_ENCODING);
-
-			let unflattenJSON = unflatten(translationsMap[locale]);
-
-			fs.appendFileSync(localeFilePath,
-				`export default ${prettyJSON(unflattenJSON, {
-					spaceBeforeColon: '',
-					shouldExpand: () => {
-						return true;
-					}
-				})};`, UTF_8_ENCODING);
 		}
 	}
 }

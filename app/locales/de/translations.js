@@ -4,7 +4,7 @@
 export default {
     "component_1": {
         "label": {
-            "field 1": "dutché",
+            "field 1": "dutchée",
             "field 2": "haggèndash"
         },
         "error": {
